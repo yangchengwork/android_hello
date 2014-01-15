@@ -1,0 +1,55 @@
+NDK_ROOT=/home/gump/work/android-ndk-linux
+TOOLCHAINS_ROOT=$(NDK_ROOT)/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86_64
+TOOLCHAINS_PREFIX=$(TOOLCHAINS_ROOT)/bin/arm-linux-androideabi
+TOOLCHAINS_INCLUDE=$(TOOLCHAINS_ROOT)/lib/gcc/arm-linux-androideabi/4.6/include-fixed
+
+PLATFORM_ROOT=$(NDK_ROOT)/platforms/android-14/arch-arm
+PLATFORM_INCLUDE=$(PLATFORM_ROOT)/usr/include
+PLATFORM_LIB=$(PLATFORM_ROOT)/usr/lib
+
+FLAGS= \
+-nostdlib \
+-I$(TOOLCHAINS_INCLUDE) \
+-I$(PLATFORM_INCLUDE)
+
+CFLAGS=$(FLAGS) \
+-fno-unwind-tables
+
+ANDROID_NDK = /home/gump/work/android-ndk-linux
+ANDROID_NDK_BIN_DIR = ${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.6/prebuilt/linux-x86/bin
+CC = $(ANDROID_NDK_BIN_DIR)/arm-linux-androideabi-gcc
+CXX = $(ANDROID_NDK_BIN_DIR)/arm-linux-androideabi-g++
+
+# Flags passed to the preprocessor.
+CPPFLAGS += -DANDROID \
+            -I$(GTEST_DIR)/include \
+            -I$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.6/include \
+            -I$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi/include \
+            --sysroot=$(ANDROID_NDK)/platforms/android-14/arch-arm
+
+NDK_LD_PATH = $(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.6/libs/armeabi
+LDFLAGS = $(NDK_LD_PATH)/libgnustl_static.a \
+          $(NDK_LD_PATH)/libsupc++.a
+
+# Flags passed to the C++ compiler. (backup: -fexceptions -frtti)
+CXXFLAGS += -g -Wall -Wextra
+
+LIBS= \
+-nostdlib \
+-Bstatic \
+-L$(PLATFORM_LIB) \
+-lstdc++ \
+-lc \
+-llog \
+-nostdlib
+
+OBJS= \
+     main.o
+
+all:
+	$(TOOLCHAINS_PREFIX)-gcc $(CFLAGS) -c main.c -o main.o
+	$(TOOLCHAINS_PREFIX)-g++ $(CPPFLAGS) $(CXXFLAGS) $(OBJS) -o test
+
+clean:
+	rm -f *.o test
+
